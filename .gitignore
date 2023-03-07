@@ -10,7 +10,7 @@
 # Exclude all contents from any keyfiles folder
 keyfiles/**
 # Except following example file
-!keyfiles/lorawan-keys_example.h
+# !keyfiles/lorawan-keys_example.h
 
 # Exclude any LoRaWAN key files with following pattern
 *lorawan-keys.h
