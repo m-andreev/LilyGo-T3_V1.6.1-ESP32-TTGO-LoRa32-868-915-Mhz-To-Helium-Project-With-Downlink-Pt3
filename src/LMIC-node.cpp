@@ -59,7 +59,7 @@
 // Relays' pins definitions
 const int RELAY_PIN1 = 15;
 const int RELAY_PIN2 = 14;
-const int RELAY_PIN3 = 4; /// not 2
+const int RELAY_PIN3 = 4;
 const int RELAY_PIN4 = 13;
 
 uint8_t tempArr[5];
@@ -796,28 +796,6 @@ void processWork(ostime_t doWorkJobTimeStamp)
             // Print the current state of the relays
             Serial.print("Current relay state: ");
             Serial.println(currChar, BIN);
-
-            /*
-            for(int i=0;i<sizeof(tempArr)-1;i++){
-                        payloadBuffer[i] = (uint8_t)tempArr[i];
-                    }
-
-            for(int i=0;i<sizeof(tempArr)-1;i++){
-                        Serial.print((char)tempArr[i]);
-                    }
-            Serial.println();
-
-            for(int i=0;i<sizeof(tempArr)-1;i++){
-                        Serial.print("Relay ");
-                        Serial.print(i+1);
-                        Serial.print(" : ");
-                        Serial.print((char)payloadBuffer[i]);
-                        Serial.println();
-                    }
-            Serial.println();
-            downLink = 0;
-            */
-            // scheduleUplink(fPort, payloadBuffer, sizeof(tempArr)-1);
             payloadBuffer[0] = currChar;
             scheduleUplink(fPort, payloadBuffer, 1);
         }
