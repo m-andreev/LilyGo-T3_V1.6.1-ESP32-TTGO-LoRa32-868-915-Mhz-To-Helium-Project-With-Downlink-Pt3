@@ -54,7 +54,7 @@ void onLmicEvent(void *pUserData, ev_t ev);
 void displayTxSymbol(bool visible);
 
 #ifndef DO_WORK_INTERVAL_SECONDS            // Should be set in platformio.ini
-    #define DO_WORK_INTERVAL_SECONDS 60    // Default 5 minutes if not set
+    #define DO_WORK_INTERVAL_SECONDS 120    // Default 5 minutes if not set
 #endif    
 
 #define TIMESTAMP_WIDTH 12 // Number of columns to display eventtime (zero-padded)
@@ -79,8 +79,8 @@ enum class ActivationMode {OTAA, ABP};
 #endif    
 
 
-#include "C:\Users\Machi\Documents\PlatformIO\Projects\LilyGo_TTGO_ESP32_LoRa32_to_Helium_4_Relays\src\boards\bsf_ttgo_lora32_v21.h" // Include Board Support File
-#include "C:\Users\Machi\Documents\PlatformIO\Projects\LilyGo_TTGO_ESP32_LoRa32_to_Helium_4_Relays\keyfiles\lorawan-keys.h"
+#include "C:\Users\Machi\Downloads\LilyGo-T3_V1.6.1-ESP32-TTGO-LoRa32-868-915-Mhz-To-Helium-Project-With-2-BME280-Sensors-main\LilyGo-T3_V1.6.1-ESP32-TTGO-LoRa32-868-915-Mhz-To-Helium-Project-With-2-BME280-Sensors-main\src\boards\bsf_ttgo_lora32_v21.h" // Include Board Support File
+#include "C:\Users\Machi\Documents\PlatformIO\Projects\LilyGo-T3_V1.6.1-ESP32-TTGO-LoRa32-868-915-Mhz-To-Helium-Project-With-Downlink-Pt3\keyfiles\lorawan-keys.h"
 
     
 #if defined(ABP_ACTIVATION) && defined(OTAA_ACTIVATION)
