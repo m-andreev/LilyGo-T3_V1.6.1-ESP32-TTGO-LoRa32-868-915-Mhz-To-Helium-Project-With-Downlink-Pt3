@@ -889,7 +889,37 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
     }
 
     /////If downlink message is received ... :
+    
+    ///Changing the doWorkInterval time
+    if(dataLength == 1 && data[0] != resetCmd){
+        if(data[0] < 0x3C){
+            doWorkIntervalSeconds = (int)0x3C;
 
+            Serial.print("doWorkInterval changed to ");
+            Serial.print(doWorkIntervalSeconds);
+            Serial.print(" seconds");
+            Serial.println();
+        }
+        else if(data[0] > 0xE10){
+            doWorkIntervalSeconds = (int)0xE10;
+
+            Serial.print("doWorkInterval changed to ");
+            Serial.print(doWorkIntervalSeconds);
+            Serial.print(" seconds");
+            Serial.println();
+        }
+        else{
+            doWorkIntervalSeconds = (int)data[0];
+
+            Serial.print("doWorkInterval changed to ");
+            Serial.print(doWorkIntervalSeconds);
+            Serial.print(" seconds");
+            Serial.println();
+        }
+
+    }
+    
+    ///Printing the sent downlink message
     if (dataLength > 1)
     {
         // New code
@@ -920,6 +950,7 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
         Serial.println();
         Serial.println("END OF DOWNLINK PART!");
         Serial.println();
+
     }
 }
 

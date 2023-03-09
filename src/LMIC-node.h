@@ -54,7 +54,7 @@ void onLmicEvent(void *pUserData, ev_t ev);
 void displayTxSymbol(bool visible);
 
 #ifndef DO_WORK_INTERVAL_SECONDS            // Should be set in platformio.ini
-    #define DO_WORK_INTERVAL_SECONDS 120    // Default 5 minutes if not set
+    #define DO_WORK_INTERVAL_SECONDS 60    // Default 5 minutes if not set
 #endif    
 
 #define TIMESTAMP_WIDTH 12 // Number of columns to display eventtime (zero-padded)
