@@ -47,7 +47,6 @@
 
 
 
-
 // -----------------------------------------------------------------------------
 
 // Optional: If ABP_DEVICEID is defined it will be used for ABP instead of the default defined in the BSF.
