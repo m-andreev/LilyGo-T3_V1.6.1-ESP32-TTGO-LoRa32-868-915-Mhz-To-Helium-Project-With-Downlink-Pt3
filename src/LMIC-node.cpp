@@ -67,6 +67,7 @@
 // Function to save the value to EEPROM
 void saveDoWorkIntervalSeconds(uint32_t value) {
   EEPROM.put(EEPROM_ADDRESS, value);
+  EEPROM.commit();
 }
 
 // Function to retrieve the value from EEPROM
@@ -74,6 +75,13 @@ uint32_t getDoWorkIntervalSeconds() {
   uint32_t value;
   EEPROM.get(EEPROM_ADDRESS, value);
   return value;
+}
+
+void printIntervalChange(uint16_t interval){
+            Serial.print("doWorkInterval changed to ");
+            Serial.print(interval);
+            Serial.print(" seconds");
+            Serial.println();
 }
 
 #include "cactus_io_BME280_I2C.h"
@@ -931,39 +939,44 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
     /// Changing the doWorkInterval time
     if (dataLength == 1 && data[0] != resetCmd)
     {
-        if (data[0] <= 0x3C)
+        if (data[0] <= 60)
         {
-            doWorkIntervalSeconds = (int)0x3C;
-            EEPROM.put(EEPROM_ADDRESS, doWorkIntervalSeconds);
-            EEPROM.commit();
+            doWorkIntervalSeconds = (int)60;
+            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
 
-            Serial.print("doWorkInterval changed to ");
-            Serial.print(doWorkIntervalSeconds);
-            Serial.print(" seconds");
-            Serial.println();
+            printIntervalChange(doWorkIntervalSeconds);
         }
-        else if (data[0] >= 0xE10)
+        else{
+            doWorkIntervalSeconds = (int)data[0];
+             saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+
+            printIntervalChange(doWorkIntervalSeconds);
+        }
+    }
+
+    if(dataLength == 2){
+        uint16_t fullNum = (uint16_t)data[0] >> 8 | (uint16_t)data[1];
+
+        Serial.println();
+        Serial.print("Received number from downlink: ");
+        Serial.println((int)fullNum);
+        Serial.println();
+      
+         if (fullNum >= 3600)
         {
-            doWorkIntervalSeconds = (int)0xE10;
-            EEPROM.put(EEPROM_ADDRESS, doWorkIntervalSeconds);
-            EEPROM.commit();
+            doWorkIntervalSeconds = (int)3600;
+            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
           
-            Serial.print("doWorkInterval changed to ");
-            Serial.print(doWorkIntervalSeconds);
-            Serial.print(" seconds");
-            Serial.println();
+            printIntervalChange(doWorkIntervalSeconds);
         }
         else
         {
-            doWorkIntervalSeconds = (int)data[0];
-            EEPROM.put(EEPROM_ADDRESS, doWorkIntervalSeconds);
-            EEPROM.commit();
+            doWorkIntervalSeconds = (int)fullNum;
+            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
             
-            Serial.print("doWorkInterval changed to ");
-            Serial.print(doWorkIntervalSeconds);
-            Serial.print(" seconds");
-            Serial.println();
+            printIntervalChange(doWorkIntervalSeconds);
         }
+        
     }
 
     /// Printing the sent downlink message
@@ -1056,6 +1069,7 @@ void setup()
   if (savedValue != 0xFFFFFFFF) {
     // A value was saved, use it
     doWorkIntervalSeconds = savedValue;
+    //doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
   } else {
     // No value was saved, use default value
     doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
