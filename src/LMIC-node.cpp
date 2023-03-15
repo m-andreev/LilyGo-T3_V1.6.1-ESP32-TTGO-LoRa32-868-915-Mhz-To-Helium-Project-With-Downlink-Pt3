@@ -955,7 +955,7 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
     }
 
     if(dataLength == 2){
-        uint16_t fullNum = (uint16_t)data[0] >> 8 | (uint16_t)data[1];
+        uint16_t fullNum = (uint16_t)data[0] << 8 | (uint16_t)data[1];
 
         Serial.println();
         Serial.print("Received number from downlink: ");
