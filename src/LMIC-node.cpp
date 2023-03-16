@@ -65,23 +65,26 @@
 #define EEPROM_ADDRESS 0
 
 // Function to save the value to EEPROM
-void saveDoWorkIntervalSeconds(uint32_t value) {
-  EEPROM.put(EEPROM_ADDRESS, value);
-  EEPROM.commit();
+void saveDoWorkIntervalSeconds(uint32_t value)
+{
+    EEPROM.put(EEPROM_ADDRESS, value);
+    EEPROM.commit();
 }
 
 // Function to retrieve the value from EEPROM
-uint32_t getDoWorkIntervalSeconds() {
-  uint32_t value;
-  EEPROM.get(EEPROM_ADDRESS, value);
-  return value;
+uint32_t getDoWorkIntervalSeconds()
+{
+    uint32_t value;
+    EEPROM.get(EEPROM_ADDRESS, value);
+    return value;
 }
 
-void printIntervalChange(uint16_t interval){
-            Serial.print("doWorkInterval changed to ");
-            Serial.print(interval);
-            Serial.print(" seconds");
-            Serial.println();
+void printIntervalChange(uint16_t interval)
+{
+    Serial.print("doWorkInterval changed to ");
+    Serial.print(interval);
+    Serial.print(" seconds");
+    Serial.println();
 }
 
 #include "cactus_io_BME280_I2C.h"
@@ -103,7 +106,7 @@ int8_t downlinkLength;
 int payloadCounter = 16;
 int downLink = 0;
 
-///uint32_t doWorkIntervalSeconds2; /// 60 seconds work interval
+/// uint32_t doWorkIntervalSeconds2; /// 60 seconds work interval
 
 //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
 //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▀ █ █ █ █
@@ -113,12 +116,13 @@ uint8_t payloadBuffer[payloadBufferLength];
 static osjob_t doWorkJob;
 uint32_t doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS; // Change value in platformio.ini
 
-void onDownlink(uint32_t value) {
-  // Update the value
-  doWorkIntervalSeconds = value;
-  
-  // Save the value to EEPROM
-  saveDoWorkIntervalSeconds(value);
+void onDownlink(uint32_t value)
+{
+    // Update the value
+    doWorkIntervalSeconds = value;
+
+    // Save the value to EEPROM
+    saveDoWorkIntervalSeconds(value);
 }
 
 // Note: LoRa module pin mappings are defined in the Board Support Files.
@@ -605,7 +609,7 @@ void onEvent(ev_t ev)
         setTxIndicatorsOn(false);
         printEvent(timestamp, ev);
         printSessionKeys();
-        //EEPROM.get(EEPROM_ADDRESS, doWorkIntervalSeconds);
+        // EEPROM.get(EEPROM_ADDRESS, doWorkIntervalSeconds);
 
         // Disable link check validation.
         // Link check validation is automatically enabled
@@ -641,7 +645,6 @@ void onEvent(ev_t ev)
         }
         break;
 
-       
     // Below events are printed only.
     case EV_SCAN_TIMEOUT:
     case EV_BEACON_FOUND:
@@ -652,11 +655,11 @@ void onEvent(ev_t ev)
     case EV_JOIN_FAILED:
     case EV_REJOIN_FAILED:
     case EV_LOST_TSYNC:
-     case EV_RESET:
+    case EV_RESET:
     case EV_RXCOMPLETE:
     case EV_LINK_DEAD:
     case EV_LINK_ALIVE:
-    
+
 #ifdef MCCI_LMIC
     // Only supported in MCCI LMIC library:
     case EV_SCAN_FOUND: // This event is defined but not used in code
@@ -946,37 +949,38 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
 
             printIntervalChange(doWorkIntervalSeconds);
         }
-        else{
+        else
+        {
             doWorkIntervalSeconds = (int)data[0];
-             saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
 
             printIntervalChange(doWorkIntervalSeconds);
         }
     }
 
-    if(dataLength == 2){
+    if (dataLength == 2)
+    {
         uint16_t fullNum = (uint16_t)data[0] << 8 | (uint16_t)data[1];
 
         Serial.println();
         Serial.print("Received number from downlink: ");
         Serial.println((int)fullNum);
         Serial.println();
-      
-         if (fullNum >= 3600)
+
+        if (fullNum >= 3600)
         {
             doWorkIntervalSeconds = (int)3600;
             saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
-          
+
             printIntervalChange(doWorkIntervalSeconds);
         }
         else
         {
             doWorkIntervalSeconds = (int)fullNum;
             saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
-            
+
             printIntervalChange(doWorkIntervalSeconds);
         }
-        
     }
 
     /// Printing the sent downlink message
@@ -1062,23 +1066,25 @@ void setup()
     Serial.begin(115200);
 
     // Initialize EEPROM
-  EEPROM.begin(sizeof(uint32_t));
-  // VERY IMPORTANT SANITY CHECK !!!
-  // Check if a value was previously saved
-  uint32_t savedValue = getDoWorkIntervalSeconds();
-  if (savedValue != 0xFFFFFFFF) {
-    // A value was saved, use it
-    doWorkIntervalSeconds = savedValue;
-    //doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
-  } else {
-    // No value was saved, use default value
-    doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
-  }
+    EEPROM.begin(sizeof(uint32_t));
+    // VERY IMPORTANT SANITY CHECK !!!
+    // Check if a value was previously saved
+    uint32_t savedValue = getDoWorkIntervalSeconds();
+    if (savedValue != 0xFFFFFFFF)
+    {
+        // A value was saved, use it
+        doWorkIntervalSeconds = savedValue;
+        // doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
+    }
+    else
+    {
+        // No value was saved, use default value
+        doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
+    }
 
-  // Print the value of the variable
-  Serial.print("Changed doWorkIntervalSeconds: ");
-  Serial.println(doWorkIntervalSeconds);
-  
+    // Print the value of the variable
+    Serial.print("Changed doWorkIntervalSeconds: ");
+    Serial.println(doWorkIntervalSeconds);
 
     if (!bme1.begin())
     {
