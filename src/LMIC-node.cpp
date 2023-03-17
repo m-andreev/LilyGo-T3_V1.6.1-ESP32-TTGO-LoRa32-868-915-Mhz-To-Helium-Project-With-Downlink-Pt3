@@ -58,32 +58,55 @@
 
 #include "EEPROM.h"
 
-// Define the size of the EEPROM memory to be used for storing the variable
-#define EEPROM_SIZE sizeof(uint32_t)
-
-// Define the address in EEPROM where the variable will be stored
-#define EEPROM_ADDRESS 0
-
-// Function to save the value to EEPROM
-void saveDoWorkIntervalSeconds(uint32_t value)
+enum DeviceType
 {
-    EEPROM.put(EEPROM_ADDRESS, value);
+    DEVICE_TYPE_UNKNOWN = 0,
+    DEVICE_TYPE_2XBME280 = 1,
+    DEVICE_TYPE_1XBME280 = 2,
+    DEVICE_TYPE_OTHER = 3
+};
+
+struct eepromData
+{
+    uint32_t interval;
+    DeviceType deviceType = DEVICE_TYPE_2XBME280;
+}myStructure;
+
+// Function to save the structure to EEPROM
+void saveToEEPROM()
+{
+    EEPROM.begin(sizeof(eepromData));
+
+    // Store the data structure to the EEPROM
+    EEPROM.put(0, myStructure);
+
+    // Commit the changes to the EEPROM
     EEPROM.commit();
+
+    // End the EEPROM session
+    EEPROM.end();
 }
 
-// Function to retrieve the value from EEPROM
-uint32_t getDoWorkIntervalSeconds()
+// Function to retrieve the structure's data from EEPROM
+void getFromEEPROM()
 {
-    uint32_t value;
-    EEPROM.get(EEPROM_ADDRESS, value);
-    return value;
+    EEPROM.begin(sizeof(eepromData));
+
+    // Read the data structure from the EEPROM
+    EEPROM.get(0, myStructure);
+
+    // End the EEPROM session
+    EEPROM.end();
 }
 
-void printIntervalChange(uint16_t interval)
+void printDataChange(eepromData &myStructure)
 {
-    Serial.print("doWorkInterval changed to ");
-    Serial.print(interval);
-    Serial.print(" seconds");
+   // Print the retrieved values
+    Serial.println("Retrieved data:");
+    Serial.print("interval = ");
+    Serial.println(myStructure.interval);
+    Serial.print("deviceType = ");
+    Serial.println(myStructure.deviceType);
     Serial.println();
 }
 
@@ -106,6 +129,7 @@ int8_t downlinkLength;
 int payloadCounter = 16;
 int downLink = 0;
 
+
 /// uint32_t doWorkIntervalSeconds2; /// 60 seconds work interval
 
 //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
@@ -116,6 +140,7 @@ uint8_t payloadBuffer[payloadBufferLength];
 static osjob_t doWorkJob;
 uint32_t doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS; // Change value in platformio.ini
 
+/*
 void onDownlink(uint32_t value)
 {
     // Update the value
@@ -124,6 +149,7 @@ void onDownlink(uint32_t value)
     // Save the value to EEPROM
     saveDoWorkIntervalSeconds(value);
 }
+*/
 
 // Note: LoRa module pin mappings are defined in the Board Support Files.
 
@@ -896,10 +922,7 @@ void processWork(ostime_t doWorkJobTimeStamp)
                     payloadSize = i;
                     break;
                 }
-                // if(!(c>='0' && c<='9' || c>='a'&& c<='z' || c>='A' && c<='Z'|| c == ' ' || c == '.' || c == ':'|| c == '*'))
-                // {
-                //   fullbuffer1[i] = '\0';
-                // }
+
                 if (c == 'C')
                 {
                     Ccounter++;
@@ -945,16 +968,18 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
         if (data[0] <= 60)
         {
             doWorkIntervalSeconds = (int)60;
-            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+            myStructure.interval = doWorkIntervalSeconds;
+            saveToEEPROM();
 
-            printIntervalChange(doWorkIntervalSeconds);
+            printDataChange(myStructure);
         }
         else
         {
             doWorkIntervalSeconds = (int)data[0];
-            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+            myStructure.interval = doWorkIntervalSeconds;
+            saveToEEPROM();
 
-            printIntervalChange(doWorkIntervalSeconds);
+            printDataChange(myStructure);
         }
     }
 
@@ -970,16 +995,18 @@ void processDownlink(ostime_t txCompleteTimestamp, uint8_t fPort, uint8_t *data,
         if (fullNum >= 3600)
         {
             doWorkIntervalSeconds = (int)3600;
-            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+            myStructure.interval = doWorkIntervalSeconds;
+            saveToEEPROM();
 
-            printIntervalChange(doWorkIntervalSeconds);
+            printDataChange(myStructure);
         }
         else
         {
             doWorkIntervalSeconds = (int)fullNum;
-            saveDoWorkIntervalSeconds(doWorkIntervalSeconds);
+            myStructure.interval = doWorkIntervalSeconds;
+            saveToEEPROM();
 
-            printIntervalChange(doWorkIntervalSeconds);
+            printDataChange(myStructure);
         }
     }
 
@@ -1065,26 +1092,29 @@ void setup()
     resetCounter();
     Serial.begin(115200);
 
-    // Initialize EEPROM
-    EEPROM.begin(sizeof(uint32_t));
-    // VERY IMPORTANT SANITY CHECK !!!
-    // Check if a value was previously saved
-    uint32_t savedValue = getDoWorkIntervalSeconds();
-    if (savedValue != 0xFFFFFFFF)
+    // Retrieve the data from the EEPROM
+    getFromEEPROM();
+
+    // Sanity check the retrieved values
+    if (myStructure.interval == 0xFFFFFFFF)
     {
-        // A value was saved, use it
-        doWorkIntervalSeconds = savedValue;
-        // doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
+        // This value indicates that the variable was never set, so set a default value
+        myStructure.interval = DO_WORK_INTERVAL_SECONDS;
     }
-    else
+    if (myStructure.deviceType < DEVICE_TYPE_UNKNOWN || myStructure.deviceType > DEVICE_TYPE_OTHER)
     {
-        // No value was saved, use default value
-        doWorkIntervalSeconds = DO_WORK_INTERVAL_SECONDS;
+        // This value indicates that the variable was never set, so set a default value
+        myStructure.deviceType = DEVICE_TYPE_UNKNOWN;
     }
 
-    // Print the value of the variable
-    Serial.print("Changed doWorkIntervalSeconds: ");
-    Serial.println(doWorkIntervalSeconds);
+    // Set the device type to 2xBME280
+    myStructure.deviceType = DEVICE_TYPE_2XBME280;
+
+    // Save the data to the EEPROM
+    saveToEEPROM();
+
+    // Print the retrieved values
+    printDataChange(myStructure);
 
     if (!bme1.begin())
     {
