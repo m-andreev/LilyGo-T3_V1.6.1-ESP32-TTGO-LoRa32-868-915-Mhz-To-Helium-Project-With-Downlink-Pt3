@@ -93,7 +93,7 @@ void getFromEEPROM()
     EEPROM.begin(sizeof(eepromData));
 
     // Read the data structure from the EEPROM
-    EEPROM.get(0, myStructure);
+    myStructure = EEPROM.get(0, myStructure);
 
     // End the EEPROM session
     EEPROM.end();
@@ -1100,6 +1100,10 @@ void setup()
     {
         // This value indicates that the variable was never set, so set a default value
         myStructure.interval = DO_WORK_INTERVAL_SECONDS;
+        doWorkIntervalSeconds = myStructure.interval;
+    }
+    else{
+        doWorkIntervalSeconds = myStructure.interval;
     }
     if (myStructure.deviceType < DEVICE_TYPE_UNKNOWN || myStructure.deviceType > DEVICE_TYPE_OTHER)
     {
