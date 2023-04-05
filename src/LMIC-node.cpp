@@ -70,7 +70,7 @@ struct eepromData
 {
     uint32_t interval;
     DeviceType deviceType = DEVICE_TYPE_2XBME280;
-}myStructure;
+} myStructure;
 
 // Function to save the structure to EEPROM
 void saveToEEPROM()
@@ -101,7 +101,7 @@ void getFromEEPROM()
 
 void printDataChange(eepromData &myStructure)
 {
-   // Print the retrieved values
+    // Print the retrieved values
     Serial.println("Retrieved data:");
     Serial.print("interval = ");
     Serial.println(myStructure.interval);
@@ -119,7 +119,7 @@ void printDataChange(eepromData &myStructure)
 
 // Create two BME280 instances
 BME280_I2C bme1(0x77); // I2C using address 0x77
-BME280_I2C bme2(0x76); // I2C using address 0x76
+// BME280_I2C bme2(0x76); // I2C using address 0x76
 
 const uint8_t payloadBufferLength = 32; // Adjust to fit max payload length
 
@@ -128,7 +128,6 @@ int8_t downlinkLength;
 
 int payloadCounter = 16;
 int downLink = 0;
-
 
 /// uint32_t doWorkIntervalSeconds2; /// 60 seconds work interval
 
@@ -836,6 +835,7 @@ void processWork(ostime_t doWorkJobTimeStamp)
         Serial.println();
 
         // delay(1000);
+        /*
         Serial.println("Device\tPressure\tHumdity\t\tTemp");
         Serial.print("BME 2\t");
         bme2.readSensor();
@@ -845,6 +845,7 @@ void processWork(ostime_t doWorkJobTimeStamp)
         Serial.print(" %\t\t");
         Serial.print(bme2.getTemperature_C());
         Serial.println(" *C\t");
+        */
 
         // Add a 1 second delay.
         // delay(1000); // just here to slow down the output.
@@ -899,15 +900,15 @@ void processWork(ostime_t doWorkJobTimeStamp)
 
             // s2temp values
             // we need to convert from float to uint8_t/char the values
-            float temperature2 = bme2.getTemperature_C();
-            snprintf(temp2, sizeof(temp2), "%.2f", temperature2);
+            // float temperature2 = bme2.getTemperature_C();
+            // snprintf(temp2, sizeof(temp2), "%.2f", temperature2);
             // 4 is mininum width, 2 is precision; float value is copied onto buff value1
             /// dtostrf(temperature2, 4, 2, temp2); ///double to string conversion function
             // sprintf(temp2, "%g", temperature2);
 
-            strcat(fullbuffer1, "t2: ");
-            strcat(fullbuffer1, temp2);
-            strcat(fullbuffer1, " *C");
+            // strcat(fullbuffer1, "t2: ");
+            // strcat(fullbuffer1, temp2);
+            // strcat(fullbuffer1, " *C");
 
             Serial.println();
             uint8_t Ccounter = 0;
@@ -915,7 +916,7 @@ void processWork(ostime_t doWorkJobTimeStamp)
             {
                 char c = (char)fullbuffer1[i];
 
-                if (Ccounter == 2)
+                if (Ccounter == 1)
                 {
                     fullbuffer1[i] = '\0';
                     payloadBuffer[i] = '\0';
@@ -1102,7 +1103,8 @@ void setup()
         myStructure.interval = DO_WORK_INTERVAL_SECONDS;
         doWorkIntervalSeconds = myStructure.interval;
     }
-    else{
+    else
+    {
         doWorkIntervalSeconds = myStructure.interval;
     }
     if (myStructure.deviceType < DEVICE_TYPE_UNKNOWN || myStructure.deviceType > DEVICE_TYPE_OTHER)
@@ -1112,7 +1114,7 @@ void setup()
     }
 
     // Set the device type to 2xBME280
-    myStructure.deviceType = DEVICE_TYPE_2XBME280;
+    // myStructure.deviceType = DEVICE_TYPE_2XBME280;
 
     // Save the data to the EEPROM
     saveToEEPROM();
@@ -1126,14 +1128,15 @@ void setup()
         while (1)
             ;
     }
+    /*
+        if (!bme2.begin())
+        {
+            Serial.println("Could not find a Second BME280 sensor, check wiring!");
+            while (1)
+                ;
 
-    if (!bme2.begin())
-    {
-        Serial.println("Could not find a Second BME280 sensor, check wiring!");
-        while (1)
-            ;
-    }
-
+        }
+    */
     //  █ █ █▀▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀   █▀▀ █▀█ █▀▄
     //  █ █ ▀▀█ █▀▀ █▀▄   █   █ █ █ █ █▀▀   █▀▀ █ █ █ █
     //  ▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀   ▀▀▀ ▀▀▀ ▀▀  ▀▀▀   ▀▀▀ ▀ ▀ ▀▀
