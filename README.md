@@ -1114,5 +1114,3 @@ To be added.
 ---
 
 Copyright (c) 2021 Leonel Lopes Parente
-#   L i l y G o - T 3 _ V 1 . 6 . 1 - E S P 3 2 - T T G O - L o R a 3 2 - 8 6 8 - 9 1 5 - M h z - T o - H e l i u m - 4 R e l a y s - A n d - B M E 2 8 0 _ p r o j e c t  
- 
