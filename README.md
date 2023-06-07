@@ -1,3 +1,6 @@
+In this project are soldered 2 BME280 sensors to a LilyGo-T3_V1.6.1 ESP32 TTGO LoRa32 868-815 MHz and all the configuration is connected to the Helium Network.
+The project is made with LMIC-Node, it has EEPROM feature, to remember the last state of the "doWorkInterval" seconds and the device type, which is not developed to the full extent, which are controlled via downlinks, of the whole configuration. It's also added feature for the device type (to work only 1 of the sensors or both of them), which is controlled with downlinks as well. The uplink part is sending the values of the temperatures of the sensors. Everything is optimized as possible.
+
 This repository contains LMIC-node, an example LoRaWAN application for a node for The Things Network.  
 Get your node quickly up and running with LMIC-node.
 
